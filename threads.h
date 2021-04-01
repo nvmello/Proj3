@@ -9,7 +9,6 @@ void start_thread(void (*function)(int, int), int A, int B)
 {
     //allocate a TCB (via malloc)
     struct TCB_t *tcb = (struct TCB_t*)malloc(sizeof(struct TCB_t));
-
     //printf("\nmade it to start_thread()\n"); //test output
     //allocate a stack (via malloc) of a certain size (choose 8192)
     int size = 8192;
@@ -17,6 +16,7 @@ void start_thread(void (*function)(int, int), int A, int B)
     
     //call init_TCB with appropriate arguments
     init_TCB(tcb,function, stack,size, A, B);
+    tcb->payload=A;
     //call addQ to add this TCB into the “RunQ” which is a global header pointer
     addQueue(&runQ,tcb);
 }
@@ -37,5 +37,5 @@ void yield() // similar to run
     rotateQ(&runQ);//rotate the run Q;
     
     //swap the context, from previous thread to the thread pointed to by RunQ
-    swapcontext(prev,&(runQ->context));
+    swapcontext(&(runQ->prev->context),&(runQ->context));
  }

@@ -31,7 +31,7 @@ void initQueue(struct TCB_t **input){
 
 /**
  * addQueue
- * adds a queue item, pointed to by “item”, to the queue pointed to by head.
+ * adds a TCB item to the tail of the queue.
  */
 void addQueue(struct TCB_t **queue,struct TCB_t *item){
 	if ((*queue)==NULL)	//if queue is empty
@@ -40,11 +40,10 @@ void addQueue(struct TCB_t **queue,struct TCB_t *item){
 		(*queue)->prev=item; //because queue is circular, head.pervious = itself
 		(*queue)->next=item; //because queue is circular, head.next = itself
 	} else{
-		struct TCB_t *tail = (*queue)->prev;
-		item->next=(*queue);
-		item->prev = tail;
+		(*queue)->prev->next = item;
+		item->prev = (*queue)->prev;
+		item->next= (*queue);
 		(*queue)->prev = item;
-		tail->next = item;
 	}
 }
 
@@ -53,26 +52,29 @@ void addQueue(struct TCB_t **queue,struct TCB_t *item){
  * deletes an item from head and returns a pointer to the deleted item
  */
 struct TCB_t* delQueue(struct TCB_t **queue){
+	TCB_t * temp=(struct TCB_t*)malloc(sizeof(struct TCB_t));; //memory for temp 
+	
 	if ((*queue)!=NULL) //if the queue is not empty
 	{
-		if ((*queue == (*queue)->next) && (*queue == (*queue)->prev)) //if the queue only has one item in it
+		temp->context = (*queue)->context; //tempcontext=qcontext
+		if (((*queue) == (*queue)->next) && (*queue == (*queue)->prev)) //if the queue only has one item in it
 		{
-			*queue=NULL;		//set head to null
+			(*queue)=NULL;		//set head to null
 		} 
 		else //if the queue has more than one item in it
 		{
-			struct TCB_t *tail = (*queue)->prev; //create a tail object to keep track of the end
-			(*queue)->next->prev=tail;		//point head.next.prev to tail
-			tail->next=(*queue)->next;		//point tail.next to head.next
-			(*queue)=(*queue)->next;		//reset queue.head
+			(*queue)->prev->next = (*queue)->next;
+			(*queue)->next->prev = (*queue)->prev;
+			(*queue) = (*queue)->next;
 		}
+		
 		//set both prev and next pointers of deletedElement to NULL
 	} 
 	else	//queue has no items in it, simply return NULL value
 	{
-		return NULL; //else queue is empty, nothing to delete, return
+		temp = NULL; //else queue is empty, nothing to delete, return
 	}
-	return (*queue);
+	return (temp);
 }
 
 /**
